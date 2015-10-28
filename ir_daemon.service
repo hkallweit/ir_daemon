@@ -1,0 +1,13 @@
+[Unit]
+Description=IR RC Action Daemon
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/run/ir_daemon.pid
+ExecStart=/usr/bin/ir_daemon
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
