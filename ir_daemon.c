@@ -47,7 +47,7 @@ static void run_command(const char *key_name)
 	pid = fork();
 	if (pid == 0) {
 		execl(command, command, key_name, NULL);
-		log(WARNING, "error executing command %s: %s",
+		log(WARNING, "error executing command %s: %s\n",
 		    command, strerror(errno));
 		_exit(EXIT_FAILURE);
 	} else if (pid < 0) {
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 
 	ret = daemon(0, 0);
 	if (ret) {
-		log(ERR, "error becoming a daemon");
+		log(ERR, "error becoming a daemon\n");
 		goto out_evdev_free;
 	}
 
@@ -135,12 +135,12 @@ int main(int argc, char *argv[])
 	num_chars = sprintf(pid_buf, "%d\n", getpid());
 	fret = write(fd_pid, pid_buf, num_chars);
 	if (fret != num_chars) {
-		log(ERR, "error writing PID to file");
+		log(ERR, "error writing PID to file\n");
 		goto out_evdev_free;
 	}
 	close(fd_pid);
 
-	log(INFO, "ir_daemon started successfully");
+	log(INFO, "ir_daemon started successfully\n");
 
 	pollfd.fd = fd;
 	pollfd.events = POLLIN;
