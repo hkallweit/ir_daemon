@@ -147,8 +147,8 @@ int main(int argc, char *argv[])
 
 start:
 	pollfd.revents = 0;
-	ret = poll(&pollfd, 1, 5000);
-	/* poll timed out */
+	ret = poll(&pollfd, 1, -1);
+	/* poll timed out, should not happen */
 	if (!ret)
 		goto start;
 	if (ret < 0) {
