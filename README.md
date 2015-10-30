@@ -14,5 +14,4 @@ as parameter.
 
 Known restrictions:
 - Path to PID file is hardcoded
-- Path to triggered script is hardcoded
 - List of supported keycodes is hardcoded
