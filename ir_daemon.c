@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <unistd.h>
 #include <poll.h>
 #include <stdlib.h>
@@ -7,6 +9,7 @@
 #include <syslog.h>
 #include <signal.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/wait.h>
 #include <libevdev-1.0/libevdev/libevdev.h>
 
@@ -17,6 +20,7 @@
 
 static const char command[] = "/tmp/ir.sh";
 static const char pid_file[] = "/var/run/ir_daemon.pid";
+static char *dev_name;
 static struct libevdev *dev;
 static int fd_pid = -1;
 
@@ -86,6 +90,39 @@ static void action(__u16 key_code)
 	log(DEBUG, "no command associated to keycode %u\n", key_code);
 }
 
+int get_opts(int argc, char * const *argv)
+{
+	int c, ret;
+	const char *dev = NULL;
+
+	opterr = 0;
+
+	while((c = getopt(argc, argv, "d:")) != -1)
+		switch (c) {
+		case 'd':
+			dev = optarg;
+			break;
+		case '?':
+			if (optopt == 'd')
+				log(WARNING, "option -%c requires an argument\n", optopt);
+			else if (isprint(optopt))
+				log(WARNING, "unknown option -%c\n", optopt);
+			else
+				log(WARNING, "unknown option character 0x%x\n", optopt);
+			break;
+		default:
+			log(ERR, "unknown error getting opts\n");
+		}
+
+	ret = asprintf(&dev_name, "/dev/input/%s", dev ?: "ir");
+	if (ret < 0) {
+		log(ERR, "error getting input device name\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	int ret;
@@ -104,7 +141,11 @@ int main(int argc, char *argv[])
 	signal(SIGBUS, sig_handler);
 	signal(SIGSEGV, sig_handler);
 
-	fd = open("/dev/input/ir", O_RDONLY | O_NONBLOCK);
+	ret = get_opts(argc, argv);
+	if (ret)
+		return 1;
+
+	fd = open(dev_name, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
 		log(ERR, "can't open input: %s\n", strerror(errno));
 		return 1;
