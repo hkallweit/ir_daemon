@@ -18,8 +18,8 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-static const char command[] = "/tmp/ir.sh";
 static const char pid_file[] = "/var/run/ir_daemon.pid";
+static const char *command;
 static char *dev_name;
 static struct libevdev *dev;
 static int fd_pid = -1;
@@ -119,6 +119,12 @@ int get_opts(int argc, char * const *argv)
 		log(ERR, "error getting input device name\n");
 		return -1;
 	}
+
+	if (optind >= argc) {
+		log(ERR, "missing command parameter\n");
+		return -1;
+	} else
+		command = argv[optind];
 
 	return 0;
 }

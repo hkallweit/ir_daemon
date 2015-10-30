@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=forking
 PIDFile=/var/run/ir_daemon.pid
-ExecStart=/usr/bin/ir_daemon
+ExecStart=/usr/bin/ir_daemon /usr/lib/ir_daemon/ir_command.sh
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 
